@@ -7,6 +7,57 @@ $(document).ready(function () {
         $("#submitTaskModal").modal("show");
     });
 
+    $(document).on("click", ".edit-user-modal", function () {
+        $.ajax({
+            url: "../../controllers/userControllers.php",
+            method: "GET",
+            data: { action: "get_student_by_id" },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status === 'success') {
+                    const user = response.data;
+
+                    $("#editUserForm input[name='first_name']").val(user.first_name);
+                    $("#editUserForm input[name='last_name']").val(user.last_name);
+                    $("#editUserForm select[name='gender']").val(user.gender);
+                    $("#editUserForm input[name='phone_number']").val(user.phone_number);
+                    $("#editUserForm input[name='course']").val(user.course);
+                    $("#editUserForm input[name='birthdate']").val(user.birthdate);
+                    $("#editUserForm textarea[name='address']").val(user.address);
+                    $("#editUserForm input[name='profilepic']").val(user.profile_path);
+
+                    $("#editUserModal").modal("show");
+                }
+            },
+        })
+    })
+
+    $("#editUserForm").on("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        formData.append("action", "editstudent");
+
+        $.ajax({
+            url: "../../controllers/userControllers.php",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: "json",
+            success: function (response) {
+                if (response.status === "success") {
+                    alert(response.message)
+                    $("#editUserModal").modal("hide");
+                    window.location.reload()
+                }
+            },
+            error: function () {
+                alert("Submission failed.")
+            }
+        });
+    });
+
     $("#submitTaskForm").on("submit", function (e) {
         e.preventDefault();
 

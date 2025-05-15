@@ -84,13 +84,13 @@ $userId = $_SESSION['user_id'];
         <div class="row">
             <div class="col-md-2 sidebar">
                 <div class="top">
-                    <h4 class="text-center mt-4">Student Panel</h4>
+                    <h4 class="text-center mt-4">Student</h4>
                 </div>
 
                 <div class="bottom mb-3 w-100">
                     <div class="profile my-3 text-center">
                         <img src="../../uploads/profiles/<?= htmlspecialchars($profileImage) ?>" alt="Profile Picture"
-                            class="mb-2">
+                            class="edit-user-modal mb-2" data-bs-toggle="modal" data-bs-target="#editUserModal">
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <h5 class="mb-0"><?= htmlspecialchars($firstName) ?></h5>
                         </div>
@@ -161,6 +161,7 @@ $userId = $_SESSION['user_id'];
     </div>
 
     <?php include '../../includes/submittaskmodal.php' ?>
+    <?php include '../../includes/editusermodal.php' ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

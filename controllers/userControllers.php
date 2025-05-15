@@ -18,6 +18,10 @@ class UserController
                     $this->loginUser();
                     break;
 
+                case 'editstudent':
+                    $this->editStudent();
+                    break;
+
                 default:
                     echo "Invalid action.";
             }
@@ -31,6 +35,10 @@ class UserController
 
                 case 'get_student_count':
                     $this->getStudentCount();
+                    break;
+
+                case 'get_student_by_id':
+                    $this->getStudentById();
                     break;
 
                 default:
@@ -125,6 +133,54 @@ class UserController
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Error getting student count.']);
         }
+    }
+
+    public function getStudentById()
+    {
+        session_start();
+
+        $user = new User();
+        $userData = $user->getStudentById($_SESSION['user_id']);
+
+        echo json_encode([
+            'status' => $userData ? 'success' : 'error',
+            'data' => $userData ? $userData : 'Failed fetching student details.'
+        ]);
+    }
+
+    public function editStudent()
+    {
+        session_start();
+
+        $studentDetails = [
+            'student_id' => $_SESSION['user_id'],
+            'first_name' => $_POST['first_name'],
+            'last_name' => $_POST['last_name'],
+            'gender' => $_POST['gender'],
+            'phone_number' => $_POST['phone_number'],
+            'course' => $_POST['course'],
+            'address' => $_POST['address'],
+            'birthdate' => $_POST['birthdate'],
+        ];
+
+        // $profilePath = '';
+        // if (!empty($_FILES['profile_path']['name'])) {
+        //     $filename = time() . "_" . $_FILES['profile_path']['name'];
+        //     $destination = "../uploads/profiles/" . $filename;
+        //     if (move_uploaded_file($_FILES['profile_path']['tmp_name'], $destination)) {
+        //         $profilePath = $filename;
+        //     }
+        // }
+
+        // $studentDetais['profile_path'] = $profilePath;
+
+        $user = new User();
+        $result = $user->editStudent($studentDetails);
+
+        echo json_encode([
+            'status' => $result ? 'success' : 'error',
+            'message' => $result ? 'Updated Successfully!' : 'Failed updating your details.',
+        ]);
     }
 }
 

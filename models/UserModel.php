@@ -81,6 +81,43 @@ class User
         }
     }
 
+    public function getStudentById($studentId)
+    {
+        try {
+            $query = "SELECT * FROM $this->usersTable WHERE id = :student_id";
+            $stmnt = $this->conn->prepare($query);
+            $stmnt->bindParam(':student_id', $studentId);
+            $stmnt->execute();
+
+            return $stmnt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function editStudent($studentDetails)
+    {
+        try {
+            $query = "UPDATE $this->usersTable SET first_name = :first_name, last_name = :last_name, gender = :gender, phone_number = :phone_number, 
+                        course = :course, address = :address, birthdate = :birthdate WHERE id = :id";
+            $stmnt = $this->conn->prepare($query);
+
+            $stmnt->bindParam(':first_name', $studentDetails['first_name']);
+            $stmnt->bindParam(':last_name', $studentDetails['last_name']);
+            $stmnt->bindParam(':gender', $studentDetails['gender']);
+            $stmnt->bindParam(':phone_number', $studentDetails['phone_number']);
+            $stmnt->bindParam(':course', $studentDetails['course']);
+            $stmnt->bindParam(':address', $studentDetails['address']);
+            $stmnt->bindParam(':birthdate', $studentDetails['birthdate']);
+            // $stmnt->bindParam(':profile_path', $studentDetails['profile_path']);
+            $stmnt->bindParam(':id', $studentDetails['student_id']);
+
+            return $stmnt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
 }
 
 ?>

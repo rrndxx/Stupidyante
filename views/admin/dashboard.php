@@ -88,7 +88,7 @@ $firstName = $_SESSION['first_name'] ?? 'Admin';
         <div class="row">
             <div class="col-md-2 sidebar">
                 <div class="top">
-                    <h4 class="text-center mt-4">Admin Panel</h4>
+                    <h4 class="text-center mt-4">Admin</h4>
                 </div>
 
                 <div class="bottom mb-3 w-100">
