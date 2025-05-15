@@ -132,5 +132,49 @@ class Task
         }
     }
 
+    public function getAssignedTasks($studentId)
+    {
+        try {
+            $query = "
+                SELECT 
+                    t.id AS task_id,
+                    t.title,
+                    t.description,
+                    t.due_date,
+                    s.status AS submission_status,
+                    s.submitted_at
+                FROM $this->taskAssignmentTable ta
+                JOIN $this->tasksTable t ON ta.task_id = t.id
+                LEFT JOIN $this->submissionsTable s 
+                    ON s.task_id = t.id AND s.student_id = :sid_sub
+                WHERE ta.student_id = :sid_ta
+                ORDER BY t.due_date ASC
+            ";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':sid_sub', $studentId, PDO::PARAM_INT);
+            $stmt->bindParam(':sid_ta', $studentId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($tasks as &$task) {
+                if (!empty($task['submission_status'])) {
+                    $task['status'] = $task['submission_status'];
+                } else {
+                    $dueDate = strtotime($task['due_date']);
+                    $now = time();
+                    $task['status'] = ($dueDate < $now) ? 'late' : 'pending';
+                }
+                unset($task['submission_status']);
+            }
+
+            return $tasks;
+
+        } catch (PDOException $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return false;
+        }
+    }
 }
 ?>

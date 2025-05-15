@@ -103,7 +103,6 @@ $userId = $_SESSION['user_id'];
 
             <div class="col-md-10 content">
                 <h3>Welcome, <?= htmlspecialchars($firstName) ?></h3>
-                <p>Here are your assigned tasks.</p>
 
                 <div class="row mt-4 justify-content-between text-center">
                     <div class="col-md-4">
@@ -145,9 +144,11 @@ $userId = $_SESSION['user_id'];
                                             <th scope="col">Title</th>
                                             <th scope="col">Description</th>
                                             <th scope="col">Due Date</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="studentTasksTableBody" class="text-center">
+                                    <tbody id="assignedTaskTableBody" class="text-center">
 
                                     </tbody>
                                 </table>

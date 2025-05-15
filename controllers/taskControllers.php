@@ -37,6 +37,10 @@ class TaskController
                     $this->getTaskById();
                     break;
 
+                case 'get_assigned_task':
+                    $this->getAssignedTasks();
+                    break;
+
                 default:
                     echo "Invalid action.";
             }
@@ -109,6 +113,30 @@ class TaskController
             echo json_encode($result);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to fetch specific task.']);
+        }
+    }
+    public function getAssignedTasks()
+    {
+        session_start();
+
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Session user_id is not set.']);
+            return;
+        }
+
+        $task = new Task();
+        $assignedTask = $task->getAssignedTasks($_SESSION['user_id']);
+
+        if ($assignedTask === false) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error fetching assigned tasks.'
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'success',
+                'data' => $assignedTask
+            ]);
         }
     }
 }

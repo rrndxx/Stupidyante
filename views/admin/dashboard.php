@@ -107,7 +107,6 @@ $firstName = $_SESSION['first_name'] ?? 'Admin';
 
             <div class="col-md-10 content">
                 <h3>Welcome, <?= htmlspecialchars($firstName) ?></h3>
-                <p>This is your dashboard. You can manage users and tasks from here.</p>
 
                 <div class="row mt-4 justify-content-center">
                     <div class="col-md-6 text-center">
