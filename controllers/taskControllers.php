@@ -26,6 +26,10 @@ class TaskController
                     $this->submitTask();
                     break;
 
+                case 'approvesubmission':
+                    $this->approveTask();
+                    break;
+
                 default:
                     echo "Invalid action.";
             }
@@ -43,6 +47,10 @@ class TaskController
 
                 case 'get_assigned_task':
                     $this->getAssignedTasks();
+                    break;
+
+                case 'view_submissions':
+                    $this->viewSubmissions();
                     break;
 
                 default:
@@ -138,7 +146,6 @@ class TaskController
             ]);
         }
     }
-
     public function submitTask()
     {
         session_start();
@@ -156,6 +163,27 @@ class TaskController
         echo json_encode([
             'status' => $submitTask ? 'success' : 'error',
             'message' => $submitTask ? 'Submitted!' : 'Could not submit task.'
+        ]);
+    }
+    public function viewSubmissions()
+    {
+        $task = new Task();
+        $submissions = $task->viewSubmissions($_GET['task_id']);
+
+        if ($submissions !== false) {
+            echo json_encode(['status' => 'success', 'data' => $submissions]);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to fetch submissions']);
+        }
+    }
+    public function approveTask()
+    {
+        $task = new Task();
+        $approved = $task->approveSubmission($_POST['task_id'], $_POST['student_id']);
+
+        echo json_encode([
+            'status' => $approved ? 'success' : 'error',
+            'message' => $approved ? 'Submission Approved' : 'Error approving submission.',
         ]);
     }
 }

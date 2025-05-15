@@ -3,9 +3,98 @@ $(document).ready(function () {
     getAllTasks();
     getStudentCount();
 
-    $(document).on("click", ".view-task", function () {
+    $(document).on('click', ".approve-submission", function (e) {
+        e.preventDefault();
+
+        const taskId = $(this).data('task-id');
+        const studentId = $(this).data('student-id');
+        const iconElement = $(this).find('i');
+
+        if (confirm('Are you sure to approve this submission?')) {
+            $.ajax({
+                url: "../../controllers/taskControllers.php",
+                method: "POST",
+                data: {
+                    action: "approvesubmission",
+                    task_id: taskId,
+                    student_id: studentId
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        iconElement.removeClass('bi-check-circle text-secondary').addClass('bi-check-circle-fill text-success');
+                        iconElement.parent().replaceWith(`<i class="bi bi-check-circle-fill text-success" title="Approved"></i>`);
+                        window.location.reload()
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert('Failed to approve submission.');
+                }
+            });
+        } else {
+            window.location.reload()
+        }
+
+    })
+
+    $(document).on("click", ".view-submissions", function () {
         const taskId = $(this).data("id");
-        // open view modal or fetch details
+
+        $.ajax({
+            url: "../../controllers/taskControllers.php",
+            method: "GET",
+            data: { action: "view_submissions", task_id: taskId },
+            dataType: 'json',
+            success: function (response) {
+                const table = $("#submissionTableBody");
+                table.empty();
+
+                if (response.status === 'success' && response.data.length > 0) {
+                    response.data.forEach(student => {
+                        const hasSubmitted = student.file_path?.trim() !== '';
+                        const isPending = student.status.toLowerCase() === 'pending';
+
+                        const viewButton = (hasSubmitted && !isPending)
+                            ? `<a href="../../uploads/submissions/${student.file_path}" target="_blank" rel="noopener" class="btn btn-dark btn-sm" title="View Submission">
+                                View
+                           </a>`
+                            : `<span class="text-muted fst-italic">Not submitted</span>`;
+
+                        let approveButton = '';
+
+                        if (isPending) {
+                            approveButton = `<span class="text-muted fst-italic">Cannot approve before submission.</span>`;
+                        } else if (student.is_approved == 1) {
+                            approveButton = `<button class="btn btn-dark btn-sm" disabled title="Already approved">Approved</button>`;
+                        } else {
+                            approveButton = `<button class="btn btn-dark btn-sm approve-submission" data-task-id="${taskId}" data-student-id="${student.student_id}" title="Approve Submission">Approve</button>`;
+                        }
+
+                        table.append(`
+                        <tr>
+                            <td class="align-middle">${student.student_name}</td>
+                            <td class="align-middle text-capitalize">${student.status}</td>
+                            <td class="align-middle text-center">${viewButton}</td>
+                            <td class="align-middle text-center">${approveButton}</td>
+                        </tr>
+                    `);
+                    });
+                } else {
+                    table.append(`
+                    <tr>
+                        <td colspan="5" class="text-center text-muted fst-italic py-3">No data found.</td>
+                    </tr>`);
+                }
+
+                $("#submissionModal").modal("show");
+            },
+            error: function () {
+                alert("Error fetching submissions.");
+            }
+        });
     });
 
     $(document).on("click", ".edit-task", function () {
@@ -184,7 +273,7 @@ function getAllTasks() {
                             <td>${task.description}</td>
                             <td>${task.due_date}</td>
                             <td>
-                                <button class="btn btn-sm view-task" data-id="${task.id}" title="View Submissions">
+                                <button class="btn btn-sm view-submissions" data-id="${task.id}" title="View Submissions">
                                     <i class="bi bi-eye"></i>
                                 </button>
                                 <button class="btn btn-sm edit-task" data-id="${task.id}" title="Edit Task">

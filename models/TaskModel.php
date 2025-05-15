@@ -5,6 +5,7 @@ require_once '../config/Database.php';
 class Task
 {
     private $conn;
+    private $usersTable = "users";
     private $tasksTable = "tasks";
     private $taskAssignmentTable = "task_assignments";
     private $submissionsTable = "submissions";
@@ -211,6 +212,69 @@ class Task
             ]);
             return true;
 
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function viewSubmissions($taskId)
+    {
+        try {
+            $query = "
+                SELECT 
+                    u.id AS student_id,
+                    CONCAT(u.first_name, ' ', u.last_name) AS student_name,
+                    s.file_path,
+                    s.submitted_at,
+                    s.status AS submission_status,
+                    s.is_approved,
+                    t.due_date
+                FROM $this->taskAssignmentTable ta
+                JOIN $this->usersTable u ON ta.student_id = u.id
+                LEFT JOIN $this->submissionsTable s 
+                    ON s.task_id = ta.task_id AND s.student_id = ta.student_id
+                JOIN $this->tasksTable t ON t.id = ta.task_id
+                WHERE ta.task_id = :task_id
+                ORDER BY u.last_name ASC
+            ";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($students as &$student) {
+                if (!empty($student['submission_status'])) {
+                    $student['status'] = $student['submission_status'];
+                } else {
+                    $dueDate = strtotime($student['due_date']);
+                    $now = time();
+                    $student['status'] = ($dueDate < $now) ? 'late' : 'pending';
+                }
+
+                unset($student['submission_status']);
+            }
+
+            return $students;
+
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function approveSubmission($taskId, $studentId)
+    {
+        try {
+            $query = "UPDATE $this->submissionsTable SET is_approved = 1 WHERE task_id = :task_id AND student_id = :student_id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':task_id', $taskId, PDO::PARAM_INT);
+            $stmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+
+            if ($stmt->execute()) {
+                return true;
+            }
+            return false;
         } catch (PDOException $e) {
             return false;
         }

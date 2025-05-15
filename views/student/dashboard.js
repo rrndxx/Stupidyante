@@ -62,7 +62,7 @@ function getAssignedTask() {
             `);
                 });
             } else {
-                assignedTaskTableBody.append(`<tr><td colspan="6" class="text-center">No Assigned Tasks Found.</td></tr>`);
+                assignedTaskTableBody.append(`<tr><td colspan="6" class="text-center">No Assigned Tasks Yet.</td></tr>`);
             }
         },
         error: function () {
