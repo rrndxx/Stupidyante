@@ -40,11 +40,10 @@ CREATE TABLE submissions (
     task_id INT NOT NULL,
     student_id INT NOT NULL,
     file_path VARCHAR(255),
-    -- NULL if not uploading a file
     submission_url TEXT,
-    -- NULL if not submitting a URL
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('submitted', 'late', 'pending') DEFAULT 'pending',
+    is_approved TINYINT DEFAULT 0,
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
 );

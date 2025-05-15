@@ -16,7 +16,7 @@ $(document).ready(function () {
                 if (response.status === 'success') {
                     if (response.role === 'admin') {
                         setTimeout(function () {
-                            window.location.href = 'views/admin/dashboard.php';
+                            window.location.href = 'views/admin/index.php';
                         }, 1500);
                     } else if (response.role === 'student') {
                         setTimeout(function () {
