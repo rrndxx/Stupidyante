@@ -93,7 +93,7 @@ $firstName = $_SESSION['first_name'] ?? 'Admin';
 
                 <div class="bottom mb-3 w-100">
                     <div class="profile my-3 text-center">
-                        <img src="../../uploads/<?= htmlspecialchars($profileImage) ?>" alt="Profile Picture"
+                        <img src="../../uploads/profiles/<?= htmlspecialchars($profileImage) ?>" alt="Profile Picture"
                             class="mb-2">
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <h5 class="mb-0"><?= htmlspecialchars($firstName) ?></h5>

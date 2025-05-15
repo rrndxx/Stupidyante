@@ -57,7 +57,7 @@ class UserController
         $profilePath = '';
         if (!empty($_FILES['profile_path']['name'])) {
             $filename = time() . "_" . $_FILES['profile_path']['name'];
-            $destination = "../uploads/" . $filename;
+            $destination = "../uploads/profiles/" . $filename;
             if (move_uploaded_file($_FILES['profile_path']['tmp_name'], $destination)) {
                 $profilePath = $filename;
             }

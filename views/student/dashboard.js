@@ -1,5 +1,37 @@
 $(document).ready(function () {
     getAssignedTask()
+
+    $(document).on("click", ".submit-task", function () {
+        const id = $(this).data("id");
+        $("#submitTaskId").val(id);
+        $("#submitTaskModal").modal("show");
+    });
+
+    $("#submitTaskForm").on("submit", function (e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        formData.append("action", "submittask");
+
+        $.ajax({
+            url: "../../controllers/taskControllers.php",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: "json",
+            success: function (response) {
+                alert(response.message);
+                if (response.status === "success") {
+                    $("#submitTaskModal").modal("hide");
+                    window.location.reload()
+                }
+            },
+            error: function () {
+                alert("Submission failed.")
+            }
+        });
+    });
 })
 
 function getAssignedTask() {
@@ -30,7 +62,7 @@ function getAssignedTask() {
             `);
                 });
             } else {
-                assignedTaskTableBody.append(`<tr><td colspan="5" class="text-center">No Assigned Tasks Found.</td></tr>`);
+                assignedTaskTableBody.append(`<tr><td colspan="6" class="text-center">No Assigned Tasks Found.</td></tr>`);
             }
         },
         error: function () {

@@ -172,7 +172,46 @@ class Task
             return $tasks;
 
         } catch (PDOException $e) {
-            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+            return false;
+        }
+    }
+
+    public function submitTask($taskDetails)
+    {
+        try {
+            $stmt = $this->conn->prepare("SELECT due_date FROM {$this->tasksTable} WHERE id = ?");
+            $stmt->execute([$taskDetails['task_id']]);
+            $due = strtotime($stmt->fetchColumn() ?: 'now');
+            $status = (time() > $due) ? 'late' : 'submitted';
+
+            $filePath = null;
+            if (!empty($taskDetails['file']['name'])) {
+                $safeName = time() . '_' . basename($taskDetails['file']['name']);
+                $dest = "../uploads/submissions/" . $safeName;
+                if (move_uploaded_file($taskDetails['file']['tmp_name'], $dest)) {
+                    $filePath = $safeName;
+                }
+            }
+
+            $q = "INSERT INTO {$this->submissionsTable}
+                 (task_id, student_id, file_path, submission_url, status)
+              VALUES (:task_id, :student_id, :file_path, :submission_url, :status)
+              ON DUPLICATE KEY UPDATE
+                 file_path = VALUES(file_path),
+                 submission_url = VALUES(submission_url),
+                 status = VALUES(status),
+                 submitted_at = CURRENT_TIMESTAMP";
+            $s = $this->conn->prepare($q);
+            $s->execute([
+                ':task_id' => $taskDetails['task_id'],
+                ':student_id' => $taskDetails['student_id'],
+                ':file_path' => $filePath,
+                ':submission_url' => $taskDetails['submission_url'],
+                ':status' => $status
+            ]);
+            return true;
+
+        } catch (PDOException $e) {
             return false;
         }
     }

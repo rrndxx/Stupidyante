@@ -22,6 +22,10 @@ class TaskController
                     $this->deleteTask();
                     break;
 
+                case 'submittask':
+                    $this->submitTask();
+                    break;
+
                 default:
                     echo "Invalid action.";
             }
@@ -119,11 +123,6 @@ class TaskController
     {
         session_start();
 
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['status' => 'error', 'message' => 'Session user_id is not set.']);
-            return;
-        }
-
         $task = new Task();
         $assignedTask = $task->getAssignedTasks($_SESSION['user_id']);
 
@@ -138,6 +137,26 @@ class TaskController
                 'data' => $assignedTask
             ]);
         }
+    }
+
+    public function submitTask()
+    {
+        session_start();
+
+        $submissionData = [
+            'task_id' => $_POST['task_id'],
+            'student_id' => $_SESSION['user_id'],
+            'file' => $_FILES['file'] ?? null,
+            'submission_url' => $_POST['submission_url'] ?? null
+        ];
+
+        $task = new Task();
+        $submitTask = $task->submitTask($submissionData);
+
+        echo json_encode([
+            'status' => $submitTask ? 'success' : 'error',
+            'message' => $submitTask ? 'Submitted!' : 'Could not submit task.'
+        ]);
     }
 }
 

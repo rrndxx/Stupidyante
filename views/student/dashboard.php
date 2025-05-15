@@ -89,7 +89,7 @@ $userId = $_SESSION['user_id'];
 
                 <div class="bottom mb-3 w-100">
                     <div class="profile my-3 text-center">
-                        <img src="../../uploads/<?= htmlspecialchars($profileImage) ?>" alt="Profile Picture"
+                        <img src="../../uploads/profiles/<?= htmlspecialchars($profileImage) ?>" alt="Profile Picture"
                             class="mb-2">
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <h5 class="mb-0"><?= htmlspecialchars($firstName) ?></h5>
@@ -159,6 +159,8 @@ $userId = $_SESSION['user_id'];
             </div>
         </div>
     </div>
+
+    <?php include '../../includes/submittaskmodal.php' ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
