@@ -287,7 +287,7 @@ function getAllTasks() {
                     `);
                 });
             } else {
-                tasksTableBody.append(`<tr><td colspan="5" class="text-center">No tasks found.</td></tr>`);
+                tasksTableBody.append(`<tr><td colspan="5" class="text-center">No added tasks yet.</td></tr>`);
             }
         },
         error: function () {

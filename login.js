@@ -1,4 +1,16 @@
 $(document).ready(function () {
+    function showToast(message, isSuccess) {
+        const toastEl = document.getElementById('toastMsg');
+        const toastBody = document.getElementById('toastBody');
+
+        toastBody.innerText = message;
+        toastEl.classList.remove('bg-success', 'bg-danger');
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+
     $("#loginForm").on("submit", function (e) {
         e.preventDefault();
         var formData = new FormData(this);
@@ -12,23 +24,22 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
-                $("#loginMsg").html(response.message);
                 if (response.status === 'success') {
-                    if (response.role === 'admin') {
-                        setTimeout(function () {
+                    showToast(response.message, true);
+                    setTimeout(function () {
+                        if (response.role === 'admin') {
                             window.location.href = 'views/admin/index.php';
-                        }, 1500);
-                    } else if (response.role === 'student') {
-                        setTimeout(function () {
+                        } else if (response.role === 'student') {
                             window.location.href = 'views/student/dashboard.php';
-                        }, 1500);
-                    }
-
+                        }
+                    }, 1500);
+                } else {
+                    showToast(response.message, false);
                 }
             },
             error: function () {
-                $("#loginMsg").html("An error occurred.");
+                showToast("An error occurred while processing your request.", false);
             }
         });
     });
-}); 
+});

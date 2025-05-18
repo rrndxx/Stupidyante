@@ -1,4 +1,16 @@
 $(document).ready(function () {
+    function showToast(message, isSuccess) {
+        const toastEl = document.getElementById('toastMsg');
+        const toastBody = document.getElementById('toastBody');
+
+        toastBody.innerText = message;
+        toastEl.classList.remove('bg-success', 'bg-danger');
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+
     $("#registerForm").on("submit", function (e) {
         e.preventDefault();
         var formData = new FormData(this);
@@ -12,15 +24,18 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
-                $("#registerMsg").html(response.message);
                 if (response.status === 'success') {
+                    showToast(response.message, true)
                     setTimeout(function () {
                         window.location.href = 'login.php';
                     }, 1500);
+                } else {
+                    showToast(response.message, false)
                 }
             },
             error: function () {
-                $("#registerMsg").html("An error occurred.");
+                showToast("An error occurred.", false)
+
             }
         });
     });
