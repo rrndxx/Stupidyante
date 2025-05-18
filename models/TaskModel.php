@@ -86,14 +86,35 @@ class Task
     public function deleteTask($taskId)
     {
         try {
-            $query = "DELETE FROM $this->tasksTable WHERE id = ?";
-            $stmnt = $this->conn->prepare($query);
+            $this->conn->beginTransaction();
 
-            return $stmnt->execute([$taskId]);
+            $fileStmt = $this->conn->prepare("SELECT file_path FROM {$this->submissionsTable} WHERE task_id = ?");
+            $fileStmt->execute([$taskId]);
+            $files = $fileStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            foreach ($files as $file) {
+                $filePath = "../uploads/submissions/" . $file;
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+
+            $this->conn->prepare("DELETE FROM {$this->submissionsTable} WHERE task_id = ?")->execute([$taskId]);
+
+            $this->conn->prepare("DELETE FROM {$this->taskAssignmentTable} WHERE task_id = ?")->execute([$taskId]);
+
+            $taskStmt = $this->conn->prepare("DELETE FROM {$this->tasksTable} WHERE id = ?");
+            $taskStmt->execute([$taskId]);
+
+            $this->conn->commit();
+            return true;
+
         } catch (PDOException $e) {
+            $this->conn->rollBack();
             return false;
         }
     }
+
 
     public function getAllTasks()
     {

@@ -99,7 +99,7 @@ class User
     {
         try {
             $query = "UPDATE $this->usersTable SET first_name = :first_name, last_name = :last_name, gender = :gender, phone_number = :phone_number, 
-                        course = :course, address = :address, birthdate = :birthdate WHERE id = :id";
+                        course = :course, address = :address, birthdate = :birthdate, profile_path = :profile_path WHERE id = :id";
             $stmnt = $this->conn->prepare($query);
 
             $stmnt->bindParam(':first_name', $studentDetails['first_name']);
@@ -109,7 +109,7 @@ class User
             $stmnt->bindParam(':course', $studentDetails['course']);
             $stmnt->bindParam(':address', $studentDetails['address']);
             $stmnt->bindParam(':birthdate', $studentDetails['birthdate']);
-            // $stmnt->bindParam(':profile_path', $studentDetails['profile_path']);
+            $stmnt->bindParam(':profile_path', $studentDetails['profile_path']);
             $stmnt->bindParam(':id', $studentDetails['student_id']);
 
             return $stmnt->execute();

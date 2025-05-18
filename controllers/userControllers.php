@@ -152,8 +152,10 @@ class UserController
     {
         session_start();
 
+        $userId = $_SESSION['user_id'];
+
         $studentDetails = [
-            'student_id' => $_SESSION['user_id'],
+            'student_id' => $userId,
             'first_name' => $_POST['first_name'],
             'last_name' => $_POST['last_name'],
             'gender' => $_POST['gender'],
@@ -163,16 +165,25 @@ class UserController
             'birthdate' => $_POST['birthdate'],
         ];
 
-        // $profilePath = '';
-        // if (!empty($_FILES['profile_path']['name'])) {
-        //     $filename = time() . "_" . $_FILES['profile_path']['name'];
-        //     $destination = "../uploads/profiles/" . $filename;
-        //     if (move_uploaded_file($_FILES['profile_path']['tmp_name'], $destination)) {
-        //         $profilePath = $filename;
-        //     }
-        // }
+        $oldProfilePath = $_POST['profilepic'] ?? '';
+        $newProfilePath = '';
 
-        // $studentDetais['profile_path'] = $profilePath;
+        if (!empty($_FILES['profile_path']['name'])) {
+            $filename = time() . "_" . $_FILES['profile_path']['name'];
+            $destination = "../uploads/profiles/" . $filename;
+
+            if (move_uploaded_file($_FILES['profile_path']['tmp_name'], $destination)) {
+                $newProfilePath = $filename;
+
+                if (!empty($oldProfilePath) && file_exists("../uploads/profiles/" . $oldProfilePath)) {
+                    unlink("../uploads/profiles/" . $oldProfilePath);
+                }
+
+                $studentDetails['profile_path'] = $newProfilePath;
+            }
+        } else {
+            $studentDetails['profile_path'] = $oldProfilePath;
+        }
 
         $user = new User();
         $result = $user->editStudent($studentDetails);
@@ -182,6 +193,7 @@ class UserController
             'message' => $result ? 'Updated Successfully!' : 'Failed updating your details.',
         ]);
     }
+
 }
 
 $userController = new UserController();
