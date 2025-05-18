@@ -47,3 +47,7 @@ CREATE TABLE submissions (
     FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+ALTER TABLE users
+ADD COLUMN verification_code VARCHAR(255) DEFAULT NULL,
+ADD COLUMN is_verified TINYINT(1) DEFAULT 0;

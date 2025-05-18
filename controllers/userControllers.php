@@ -107,7 +107,7 @@ class UserController
 
             echo json_encode(['status' => 'success', 'message' => 'Login Successful!', 'role' => $existingUser['role']]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => "Invalid email or password."]);
+            echo json_encode(['status' => 'error', 'message' => "Error Logging In."]);
         }
     }
 

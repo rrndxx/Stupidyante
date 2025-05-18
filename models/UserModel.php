@@ -1,6 +1,10 @@
 <?php
 
-require_once '../config/Database.php';
+require_once __DIR__ . '/../config/Database.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class User
 {
@@ -11,14 +15,69 @@ class User
         $database = new Database();
         $this->conn = $database->connect();
     }
+    public function sendVerification($email, $firstName, $code)
+    {
+        $mail = new PHPMailer(true);
 
+        try {
+            $mail->SMTPDebug = 0;
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'rendyllcabardo11@gmail.com';
+            $mail->Password = 'kaat gpps ibfp fqpi';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('rendyllcabardo11@gmail.com', 'Rendyll Ryan');
+            $mail->addAddress($email);
+
+            $verificationLink = "http://localhost/Stupidyante/views/auth/verify_email.php?token=$code";
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Verify your email address';
+            $mail->Body = "Hello, $firstName!<br><br>Please click the link below to verify your email:<br><a href='$verificationLink'>Verify your email</a>";
+
+            $mail->send();
+
+            return true;
+        } catch (Exception $e) {
+            return "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+    }
+    public function verifyUser($token)
+    {
+        try {
+            $query = "SELECT * FROM {$this->usersTable} WHERE verification_code = :token AND is_verified = 0";
+            $stmnt = $this->conn->prepare($query);
+            $stmnt->bindParam(':token', $token);
+            $stmnt->execute();
+
+            $user = $stmnt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user) {
+                $query = "UPDATE {$this->usersTable} SET is_verified = 1 WHERE id = :id";
+                $stmnt = $this->conn->prepare($query);
+                $stmnt->bindParam(':id', $user['id']);
+
+                return $stmnt->execute();
+            } else {
+                return false;
+            }
+        } catch (PDOException $e) {
+            return false;
+        }
+
+    }
     public function registerUser($userData)
     {
         try {
+            $code = bin2hex(random_bytes(16));
+
             $query = "INSERT INTO $this->usersTable 
-        (first_name, last_name, email, password, gender, phone_number, course, address, birthdate, profile_path, role) 
+        (first_name, last_name, email, password, gender, phone_number, course, address, birthdate, profile_path, role, verification_code) 
         VALUES 
-        (:first_name, :last_name, :email, :password, :gender, :phone_number, :course, :address, :birthdate, :profile_path, :role)";
+        (:first_name, :last_name, :email, :password, :gender, :phone_number, :course, :address, :birthdate, :profile_path, :role, :code)";
 
             $stmnt = $this->conn->prepare($query);
 
@@ -35,18 +94,28 @@ class User
             $stmnt->bindParam(':birthdate', $userData['birthdate']);
             $stmnt->bindParam(':profile_path', $userData['profile_path']);
             $stmnt->bindParam(':role', $userData['role']);
+            $stmnt->bindParam(':code', $code);
 
-            return $stmnt->execute();
+            if ($stmnt->execute()) {
+                $emailResult = $this->sendVerification($userData['email'], $userData['first_name'], $code);
+
+                if ($emailResult === true) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
 
         } catch (PDOException $e) {
             return false;
         }
     }
-
     public function findByEmail($email)
     {
         try {
-            $query = "SELECT * FROM $this->usersTable WHERE email = :email LIMIT 1";
+            $query = "SELECT * FROM $this->usersTable WHERE email = :email AND is_verified = 1 LIMIT 1";
             $stmnt = $this->conn->prepare($query);
             $stmnt->bindParam(':email', $email);
             $stmnt->execute();
@@ -55,7 +124,6 @@ class User
             return false;
         }
     }
-
     public function getAllStudents()
     {
         try {
@@ -67,7 +135,6 @@ class User
             return false;
         }
     }
-
     public function getStudentCount()
     {
         try {
@@ -80,7 +147,6 @@ class User
             return false;
         }
     }
-
     public function getStudentById($studentId)
     {
         try {
@@ -94,7 +160,6 @@ class User
             return false;
         }
     }
-
     public function editStudent($studentDetails)
     {
         try {
