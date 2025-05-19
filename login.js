@@ -11,6 +11,11 @@ $(document).ready(function () {
         toast.show();
     }
 
+    function showMFAModal() {
+        const mfaModal = new bootstrap.Modal(document.getElementById('mfaModal'));
+        mfaModal.show();
+    }
+
     $("#loginForm").on("submit", function (e) {
         e.preventDefault();
         var formData = new FormData(this);
@@ -24,6 +29,30 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
+                console.log(response.code)
+                if (response.status === 'success') {
+                    showMFAModal();
+                } else {
+                    showToast("Error.", false);
+                }
+            },
+            error: function () {
+                showToast("An error occurred while processing your request.", false);
+            }
+        });
+    });
+
+    $('#mfaForm').on('submit', function (e) {
+        e.preventDefault();
+        const code = $('#mfaCode').val().trim();
+        console.log(code)
+
+        $.ajax({
+            type: 'POST',
+            url: '../Stupidyante/controllers/userControllers.php',
+            data: { code: code, action: 'two_step_verify' },
+            dataType: 'json',
+            success: function (response) {
                 if (response.status === 'success') {
                     showToast(response.message, true);
                     setTimeout(function () {
@@ -34,7 +63,7 @@ $(document).ready(function () {
                         }
                     }, 1500);
                 } else {
-                    showToast(response.message, false);
+                    showToast(response.message, true);
                 }
             },
             error: function () {

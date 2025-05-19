@@ -69,6 +69,35 @@ class User
         }
 
     }
+    public function sendTwoStepVerification($email, $firstName, $mfaCode)
+    {
+        $mail = new PHPMailer(true);
+
+        try {
+            $mail->SMTPDebug = 0;
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'rendyllcabardo11@gmail.com';
+            $mail->Password = 'kaat gpps ibfp fqpi';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('rendyllcabardo11@gmail.com', 'Rendyll Ryan');
+            $mail->addAddress($email);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Verify your email address';
+            $mail->Body = "Hello, $firstName!<br><br>Here is your verification code in order to login to Stupidyante: $mfaCode";
+
+            $mail->send();
+
+            return true;
+        } catch (Exception $e) {
+            return "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
+
+    }
     public function registerUser($userData)
     {
         try {

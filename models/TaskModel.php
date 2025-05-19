@@ -51,7 +51,6 @@ class Task
             return false;
         }
     }
-
     public function editTask($taskDetails)
     {
         try {
@@ -82,7 +81,6 @@ class Task
             return false;
         }
     }
-
     public function deleteTask($taskId)
     {
         try {
@@ -114,8 +112,6 @@ class Task
             return false;
         }
     }
-
-
     public function getAllTasks()
     {
         try {
@@ -127,7 +123,6 @@ class Task
             return false;
         }
     }
-
     public function getTaskById($taskId)
     {
         if (!$taskId || !is_numeric($taskId)) {
@@ -153,7 +148,6 @@ class Task
             return false;
         }
     }
-
     public function getAssignedTasks($studentId)
     {
         try {
@@ -197,7 +191,6 @@ class Task
             return false;
         }
     }
-
     public function submitTask($taskDetails)
     {
         try {
@@ -237,7 +230,6 @@ class Task
             return false;
         }
     }
-
     public function viewSubmissions($taskId)
     {
         try {
@@ -283,7 +275,6 @@ class Task
             return false;
         }
     }
-
     public function approveSubmission($taskId, $studentId)
     {
         try {

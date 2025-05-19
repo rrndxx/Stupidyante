@@ -22,6 +22,10 @@ class UserController
                     $this->editStudent();
                     break;
 
+                case 'two_step_verify':
+                    $this->twoStepVerify();
+                    break;
+
                 default:
                     echo "Invalid action.";
             }
@@ -100,12 +104,32 @@ class UserController
 
         if ($existingUser && password_verify($userData['password'], $existingUser['password'])) {
             session_start();
+            $mfaCode = random_int(100000, 999999);
+
+            $_SESSION['MFA_Code'] = $mfaCode;
             $_SESSION['user_id'] = $existingUser['id'];
             $_SESSION['first_name'] = $existingUser['first_name'];
             $_SESSION['profile_image'] = $existingUser['profile_path'];
             $_SESSION['role'] = $existingUser['role'];
 
-            echo json_encode(['status' => 'success', 'message' => 'Login Successful!', 'role' => $existingUser['role']]);
+            $user->sendTwoStepVerification($existingUser['email'], $existingUser['first_name'], $mfaCode);
+
+            echo json_encode(['status' => 'success', 'code' => $_SESSION['MFA_Code']]);
+        } else {
+            echo json_encode(['status' => 'error',]);
+        }
+    }
+
+    public function twoStepVerify()
+    {
+        session_start();
+
+        $actualCode = $_SESSION['MFA_Code'];
+        $role = $_SESSION['role'];
+        $code = isset($_POST['code']) ? (int) trim($_POST['code']) : 0;
+
+        if ($code == $actualCode) {
+            echo json_encode(['status' => 'success', 'message' => 'Login Successful!', 'role' => $role]);
         } else {
             echo json_encode(['status' => 'error', 'message' => "Error Logging In."]);
         }
