@@ -1,6 +1,18 @@
 $(document).ready(function () {
     getAssignedTask()
 
+    function showToast(message, isSuccess) {
+        const toastEl = document.getElementById('toastMsg');
+        const toastBody = document.getElementById('toastBody');
+
+        toastBody.innerText = message;
+        toastEl.classList.remove('bg-success', 'bg-danger');
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+
     $(document).on("click", ".submit-task", function () {
         const id = $(this).data("id");
         $("#submitTaskId").val(id);
@@ -47,13 +59,13 @@ $(document).ready(function () {
             dataType: "json",
             success: function (response) {
                 if (response.status === "success") {
-                    alert(response.message)
+                    showToast(response.message, true)
                     $("#editUserModal").modal("hide");
                     window.location.reload()
                 }
             },
             error: function () {
-                alert("Submission failed.")
+                showToast("Submission failed.", false)
             }
         });
     });
@@ -72,32 +84,31 @@ $(document).ready(function () {
             processData: false,
             dataType: "json",
             success: function (response) {
-                alert(response.message);
+                showToast(response.message, true);
                 if (response.status === "success") {
                     $("#submitTaskModal").modal("hide");
                     window.location.reload()
                 }
             },
             error: function () {
-                alert("Submission failed.")
+                showToast("Submission failed.", false)
             }
         });
     });
-})
 
-function getAssignedTask() {
-    $.ajax({
-        url: "../../controllers/taskControllers.php",
-        method: "GET",
-        data: { action: "get_assigned_task" },
-        dataType: 'json',
-        success: function (response) {
-            const assignedTaskTableBody = $("#assignedTaskTableBody");
-            assignedTaskTableBody.empty();
+    function getAssignedTask() {
+        $.ajax({
+            url: "../../controllers/taskControllers.php",
+            method: "GET",
+            data: { action: "get_assigned_task" },
+            dataType: 'json',
+            success: function (response) {
+                const assignedTaskTableBody = $("#assignedTaskTableBody");
+                assignedTaskTableBody.empty();
 
-            if (response.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
-                response.data.forEach(task => {
-                    assignedTaskTableBody.append(`
+                if (response.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
+                    response.data.forEach(task => {
+                        assignedTaskTableBody.append(`
                 <tr>
                     <th scope="row">${task.task_id}</th>
                     <td>${task.title}</td>
@@ -111,13 +122,16 @@ function getAssignedTask() {
                     </td>
                 </tr>
             `);
-                });
-            } else {
-                assignedTaskTableBody.append(`<tr><td colspan="6" class="text-center">No Assigned Tasks Yet.</td></tr>`);
+                    });
+                } else {
+                    assignedTaskTableBody.append(`<tr><td colspan="6" class="text-center">No Assigned Tasks Yet.</td></tr>`);
+                }
+            },
+            error: function () {
+                alert("Error fetching students.");
             }
-        },
-        error: function () {
-            alert("Error fetching students.");
-        }
-    })
-}
+        })
+    }
+});
+
+

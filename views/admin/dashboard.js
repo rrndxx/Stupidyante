@@ -22,16 +22,16 @@ $(document).ready(function () {
                 dataType: 'json',
                 success: function (response) {
                     if (response.status === 'success') {
-                        alert(response.message);
+                        showToast(response.message, true)
                         iconElement.removeClass('bi-check-circle text-secondary').addClass('bi-check-circle-fill text-success');
                         iconElement.parent().replaceWith(`<i class="bi bi-check-circle-fill text-success" title="Approved"></i>`);
                         window.location.reload()
                     } else {
-                        alert(response.message);
+                        showToast('Error approving task.', false)
                     }
                 },
                 error: function () {
-                    alert('Failed to approve submission.');
+                    showToast('Error approving task.', false)
                 }
             });
         } else {
@@ -92,7 +92,7 @@ $(document).ready(function () {
                 $("#submissionModal").modal("show");
             },
             error: function () {
-                alert("Error fetching submissions.");
+                showToast("Error fetching submissions.", false);
             }
         });
     });
@@ -132,7 +132,7 @@ $(document).ready(function () {
                 });
             },
             error: function () {
-                alert("Failed to load task data.");
+                showToast("Failed to load task data.", false);
             }
         });
     });
@@ -146,11 +146,11 @@ $(document).ready(function () {
                 data: { action: "deletetask", task_id: taskId },
                 dataType: 'json',
                 success: function (response) {
-                    alert(response.message)
+                    showToast(response.message, true)
                     window.location.reload();
                 },
                 error: function () {
-                    alert("Failed to load task data.");
+                    showToast("Failed deleting task.", false)
                 }
             })
         }
@@ -158,11 +158,6 @@ $(document).ready(function () {
 
     $("#addTaskForm").on("submit", function (e) {
         e.preventDefault();
-
-        const selectedStudents = $("#students").val();
-        const taskTitle = $("#taskTitle").val();
-        const taskDescription = $("#taskDescription").val();
-        const dueDate = $("#dueDate").val();
 
         var formData = new FormData(this);
         formData.append('action', 'addtask');
@@ -175,12 +170,12 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
-                alert(response.message);
+                showToast(response.message, true)
                 $("#addTaskModal").modal('hide');
                 window.location.reload();
             },
             error: function () {
-                alert("An error occurred.");
+                showToast('Error adding task', false)
             }
         });
     });
@@ -199,122 +194,134 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
-                alert(response.message);
+                showToast(response.message, true)
                 $("#editTaskModal").modal("hide");
                 getAllTasks();
             },
             error: function () {
-                alert("Error updating task.");
+                showToast('Error updating task', false)
             }
         });
     });
 
+    function showToast(message, isSuccess) {
+        const toastEl = document.getElementById('toastMsg');
+        const toastBody = document.getElementById('toastBody');
+
+        toastBody.innerText = message;
+        toastEl.classList.remove('bg-success', 'bg-danger');
+        toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+
+    function getAllStudents() {
+        $.ajax({
+            url: "../../controllers/userControllers.php",
+            method: "GET",
+            data: { action: "get_all_students" },
+            dataType: 'json',
+            success: function (students) {
+                const select = $("#students");
+                select.empty();
+                students.forEach(student => {
+                    const fullName = `${student.first_name} ${student.last_name}`;
+                    select.append(`<option value="${student.id}">${fullName}</option>`);
+                });
+
+                const studentsTableBody = $("#studentsTableBody");
+                studentsTableBody.empty();
+
+                if (Array.isArray(students) && students.length > 0) {
+                    students.forEach(student => {
+                        studentsTableBody.append(`
+                            <tr>
+                                <th scope="row">${student.id}</th>
+                                <td>${student.first_name}</td>
+                                <td>${student.last_name}</td>
+                                <td>${student.email}</td>
+                                <td>${student.gender}</td>
+                                <td>${student.phone_number}</td>
+                                <td>${student.course}</td>
+                                <td>${student.address}</td>
+                                <td>${student.birthdate}</td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    studentsTableBody.append(`<tr><td colspan="9" class="text-center">No students found.</td></tr>`);
+                }
+            },
+            error: function () {
+                alert("Error fetching students.");
+            }
+        });
+    }
+
+    function getAllTasks() {
+        $.ajax({
+            url: "../../controllers/taskControllers.php",
+            method: "GET",
+            data: { action: "get_all_tasks" },
+            dataType: 'json',
+            success: function (tasks) {
+                const tasksTableBody = $("#tasksTableBody");
+                tasksTableBody.empty();
+
+                if (Array.isArray(tasks) && tasks.length > 0) {
+                    tasks.forEach(task => {
+                        tasksTableBody.append(`
+                            <tr>
+                                <th scope="row">${task.id}</th>
+                                <td>${task.title}</td>
+                                <td>${task.description}</td>
+                                <td>${task.due_date}</td>
+                                <td>
+                                    <button class="btn btn-sm view-submissions" data-id="${task.id}" title="View Submissions">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm edit-task" data-id="${task.id}" title="Edit Task">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-sm delete-task" data-id="${task.id}" title="Delete Task">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                } else {
+                    tasksTableBody.append(`<tr><td colspan="5" class="text-center">No added tasks yet.</td></tr>`);
+                }
+            },
+            error: function () {
+                alert("Error fetching tasks.");
+            }
+        });
+    }
+
+    function getStudentCount() {
+        $.ajax({
+            url: "../../controllers/userControllers.php",
+            method: "GET",
+            data: { action: "get_student_count" },
+            dataType: 'json',
+            success: function (response) {
+                const totalStudents = $("#totalStudents");
+                totalStudents.empty();
+
+                if (response.status == 'success') {
+                    totalStudents.html(response.message);
+                } else if (response.status == 'error') {
+                    totalStudents.html(response.message);
+                }
+            },
+            error: function () {
+                alert("Error fetching students.");
+            }
+        });
+    }
 });
 
-function getAllStudents() {
-    $.ajax({
-        url: "../../controllers/userControllers.php",
-        method: "GET",
-        data: { action: "get_all_students" },
-        dataType: 'json',
-        success: function (students) {
-            const select = $("#students");
-            select.empty();
-            students.forEach(student => {
-                const fullName = `${student.first_name} ${student.last_name}`;
-                select.append(`<option value="${student.id}">${fullName}</option>`);
-            });
-
-            const studentsTableBody = $("#studentsTableBody");
-            studentsTableBody.empty();
-
-            if (Array.isArray(students) && students.length > 0) {
-                students.forEach(student => {
-                    studentsTableBody.append(`
-                        <tr>
-                            <th scope="row">${student.id}</th>
-                            <td>${student.first_name}</td>
-                            <td>${student.last_name}</td>
-                            <td>${student.email}</td>
-                            <td>${student.gender}</td>
-                            <td>${student.phone_number}</td>
-                            <td>${student.course}</td>
-                            <td>${student.address}</td>
-                            <td>${student.birthdate}</td>
-                        </tr>
-                    `);
-                });
-            } else {
-                studentsTableBody.append(`<tr><td colspan="9" class="text-center">No students found.</td></tr>`);
-            }
-        },
-        error: function () {
-            alert("Error fetching students.");
-        }
-    });
-}
-
-function getAllTasks() {
-    $.ajax({
-        url: "../../controllers/taskControllers.php",
-        method: "GET",
-        data: { action: "get_all_tasks" },
-        dataType: 'json',
-        success: function (tasks) {
-            const tasksTableBody = $("#tasksTableBody");
-            tasksTableBody.empty();
-
-            if (Array.isArray(tasks) && tasks.length > 0) {
-                tasks.forEach(task => {
-                    tasksTableBody.append(`
-                        <tr>
-                            <th scope="row">${task.id}</th>
-                            <td>${task.title}</td>
-                            <td>${task.description}</td>
-                            <td>${task.due_date}</td>
-                            <td>
-                                <button class="btn btn-sm view-submissions" data-id="${task.id}" title="View Submissions">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="btn btn-sm edit-task" data-id="${task.id}" title="Edit Task">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                <button class="btn btn-sm delete-task" data-id="${task.id}" title="Delete Task">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `);
-                });
-            } else {
-                tasksTableBody.append(`<tr><td colspan="5" class="text-center">No added tasks yet.</td></tr>`);
-            }
-        },
-        error: function () {
-            alert("Error fetching tasks.");
-        }
-    });
-}
-
-function getStudentCount() {
-    $.ajax({
-        url: "../../controllers/userControllers.php",
-        method: "GET",
-        data: { action: "get_student_count" },
-        dataType: 'json',
-        success: function (response) {
-            const totalStudents = $("#totalStudents");
-            totalStudents.empty();
-
-            if (response.status == 'success') {
-                totalStudents.html(response.message);
-            } else if (response.status == 'error') {
-                totalStudents.html(response.message);
-            }
-        },
-        error: function () {
-            alert("Error fetching students.");
-        }
-    });
-}
 
