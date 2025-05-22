@@ -16,6 +16,11 @@ $(document).ready(function () {
         var formData = new FormData(this);
         formData.append('action', 'register');
 
+        const btn = document.getElementById("registerBtn");
+        const spinner = document.getElementById("registerSpinner");
+        spinner.classList.remove("spinner-hidden");
+        btn.disabled = true;
+
         $.ajax({
             url: "../Stupidyante/controllers/userControllers.php",
             method: "POST",
@@ -24,11 +29,14 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
+
                 if (response.status === 'success') {
+                    spinner.classList.add("spinner-hidden");
+                    btn.disabled = false;
                     showToast(response.message, true)
                     setTimeout(function () {
                         window.location.href = 'login.php';
-                    }, 1500);
+                    }, 1000);
                 } else {
                     showToast(response.message, false)
                 }

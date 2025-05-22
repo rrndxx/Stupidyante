@@ -80,6 +80,20 @@ $userId = $_SESSION['user_id'];
 </head>
 
 <body>
+    <!-- Toast Container -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
+        <div id="toastMsg" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive"
+            aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastBody">
+                    <!-- Message will go here -->
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-2 sidebar">
@@ -160,19 +174,7 @@ $userId = $_SESSION['user_id'];
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055">
-        <div id="toastMsg" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive"
-            aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="toastBody">
-                    <!-- Message will go here -->
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
-                    aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
+
 
     <?php include '../../includes/submittaskmodal.php' ?>
     <?php include '../../includes/editusermodal.php' ?>
