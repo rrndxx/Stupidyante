@@ -1,21 +1,24 @@
 <?php
 
 require_once __DIR__ . '/../config/Database.php';
-require_once __DIR__ . '/../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 class User
 {
     private $conn;
-    private $usersTable = "users";
+    private $usersTable;
+    private $mailPassword;
+    private $mailPort;
     public function __construct()
     {
         $database = new Database();
         $this->conn = $database->connect();
+        $this->usersTable = $_ENV['USERS_TABLE'];
+        $this->mailPassword = $_ENV['MAIL_PASSWORD'];
+        $this->mailPort = $_ENV['MAIL_PORT'];
     }
-    public function sendVerification($email, $firstName, $code)
+    private function sendVerification($email, $firstName, $code)
     {
         $mail = new PHPMailer(true);
 
@@ -25,9 +28,9 @@ class User
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'rendyllcabardo11@gmail.com';
-            $mail->Password = 'kaat gpps ibfp fqpi';
+            $mail->Password = $this->mailPassword;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $mail->Port = $this->mailPort;
 
             $mail->setFrom('rendyllcabardo11@gmail.com', 'Rendyll Ryan');
             $mail->addAddress($email);
@@ -79,9 +82,9 @@ class User
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'rendyllcabardo11@gmail.com';
-            $mail->Password = 'kaat gpps ibfp fqpi';
+            $mail->Password = $this->mailPassword;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
+            $mail->Port = $this->mailPort;
 
             $mail->setFrom('rendyllcabardo11@gmail.com', 'Rendyll Ryan');
             $mail->addAddress($email);

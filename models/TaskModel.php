@@ -1,21 +1,23 @@
 <?php
 
 require_once '../config/Database.php';
-
 class Task
 {
     private $conn;
-    private $usersTable = "users";
-    private $tasksTable = "tasks";
-    private $taskAssignmentTable = "task_assignments";
-    private $submissionsTable = "submissions";
+    private $usersTable;
+    private $tasksTable;
+    private $taskAssignmentTable;
+    private $submissionsTable;
 
     public function __construct()
     {
         $database = new Database();
         $this->conn = $database->connect();
+        $this->usersTable = $_ENV['USERS_TABLE'];
+        $this->tasksTable = $_ENV['TASKS_TABLE'];
+        $this->submissionsTable = $_ENV['SUBMISSIONS_TABLE'];
+        $this->taskAssignmentTable = $_ENV['TASKS_ASSIGNMENTS_TABLE'];
     }
-
     public function addTask($taskDetails)
     {
         try {
