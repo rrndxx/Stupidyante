@@ -178,32 +178,6 @@
                 toggleIcon.classList.replace('bi-eye-slash', 'bi-eye');
             }
         }
-
-        document.getElementById("loginForm").addEventListener("submit", function (e) {
-            e.preventDefault(); // Remove this line when integrating real backend
-
-            const loginBtn = document.getElementById("loginBtn");
-            const spinner = document.getElementById("loginSpinner");
-            const loginText = document.getElementById("loginText");
-
-            spinner.classList.remove("spinner-hidden");
-            loginBtn.disabled = true;
-
-            // Simulate login processing
-            setTimeout(() => {
-                spinner.classList.add("spinner-hidden");
-                loginBtn.disabled = false;
-                showToast("Login successful!"); // You can adjust this to use actual login logic
-            }, 2000);
-        });
-
-        function showToast(message) {
-            const toastBody = document.getElementById("toastBody");
-            toastBody.textContent = message;
-
-            const toast = new bootstrap.Toast(document.getElementById("toastMsg"));
-            toast.show();
-        }
     </script>
 
 </body>

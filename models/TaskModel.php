@@ -158,6 +158,7 @@ class Task
                     t.description,
                     t.due_date,
                     s.status AS submission_status,
+                    s.is_approved,
                     s.submitted_at
                 FROM $this->taskAssignmentTable ta
                 JOIN $this->tasksTable t ON ta.task_id = t.id

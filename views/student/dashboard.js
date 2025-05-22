@@ -6,8 +6,10 @@ $(document).ready(function () {
         const toastBody = document.getElementById('toastBody');
 
         toastBody.innerText = message;
+
         toastEl.classList.remove('bg-success', 'bg-danger');
         toastEl.classList.add(isSuccess ? 'bg-success' : 'bg-danger');
+        toastEl.classList.add('text-white');
 
         const toast = new bootstrap.Toast(toastEl);
         toast.show();
@@ -60,8 +62,10 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status === "success") {
                     showToast(response.message, true)
-                    $("#editUserModal").modal("hide");
-                    window.location.reload()
+                    setTimeout(() => {
+                        $("#editUserModal").modal("hide");
+                        window.location.reload()
+                    }, 1500);
                 }
             },
             error: function () {
@@ -86,8 +90,10 @@ $(document).ready(function () {
             success: function (response) {
                 showToast(response.message, true);
                 if (response.status === "success") {
-                    $("#submitTaskModal").modal("hide");
-                    window.location.reload()
+                    setTimeout(() => {
+                        $("#submitTaskModal").modal("hide");
+                        window.location.reload()
+                    }, 1500);
                 }
             },
             error: function () {
@@ -108,20 +114,34 @@ $(document).ready(function () {
 
                 if (response.status === 'success' && Array.isArray(response.data) && response.data.length > 0) {
                     response.data.forEach(task => {
+                        var approved = task.is_approved ? 'Approved.' : 'Not approved yet.';
+                        var status = '';
+                        if (task.status == 'submitted') {
+                            status = 'Submitted';
+                        } else if (task.status == 'pending') {
+                            status = 'Pending';
+                        } else {
+                            status = 'Late';
+                        }
+
+                        const isDisabled = (task.status === 'submitted');
+                        const disabledAttr = isDisabled ? 'disabled' : '';
+                        const btnClass = isDisabled ? 'btn-secondary' : 'btn-primary';
+
                         assignedTaskTableBody.append(`
-                <tr>
-                    <th scope="row">${task.task_id}</th>
-                    <td>${task.title}</td>
-                    <td>${task.description}</td>
-                    <td>${task.due_date}</td>
-                    <td>${task.status}</td>
-                    <td>
-                        <button class="btn btn-sm submit-task" data-id="${task.task_id}" title="Submit Task">
-                            <i class="bi bi-upload"></i>
-                        </button>
-                    </td>
-                </tr>
-            `);
+                        <tr>
+                            <th scope="row">${task.task_id}</th>
+                            <td>${task.title}</td>
+                            <td>${task.description}</td>
+                            <td>${task.due_date}</td>
+                            <td>${status}, ${approved}</td>
+                            <td>
+                                <button class="btn btn-sm ${btnClass} submit-task" data-id="${task.task_id}" title="Submit Task" ${disabledAttr}>
+                                    <i class="bi bi-upload"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
                     });
                 } else {
                     assignedTaskTableBody.append(`<tr><td colspan="6" class="text-center">No Assigned Tasks Yet.</td></tr>`);
@@ -132,6 +152,7 @@ $(document).ready(function () {
             }
         })
     }
+
 });
 
 

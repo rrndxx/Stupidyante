@@ -18,7 +18,16 @@ $(document).ready(function () {
 
     $("#loginForm").on("submit", function (e) {
         e.preventDefault();
-        var formData = new FormData(this);
+
+        const loginBtn = document.getElementById("loginBtn");
+        const loginText = document.getElementById("loginText");
+        const spinner = document.getElementById("loginSpinner");
+
+        spinner.classList.remove("spinner-hidden");
+        loginText.textContent = "Logging in...";
+        loginBtn.disabled = true;
+
+        const formData = new FormData(this);
         formData.append('action', 'login');
 
         $.ajax({
@@ -29,14 +38,20 @@ $(document).ready(function () {
             contentType: false,
             dataType: 'json',
             success: function (response) {
+                spinner.classList.add("spinner-hidden");
+                loginText.textContent = "Login";
+                loginBtn.disabled = false;
                 console.log(response.code)
                 if (response.status === 'success') {
                     showMFAModal();
                 } else {
-                    showToast("Error.", false);
+                    showToast("Incorrect email or password.", false);
                 }
             },
             error: function () {
+                spinner.classList.add("spinner-hidden");
+                loginText.textContent = "Login";
+                loginBtn.disabled = false;
                 showToast("An error occurred while processing your request.", false);
             }
         });
@@ -45,7 +60,6 @@ $(document).ready(function () {
     $('#mfaForm').on('submit', function (e) {
         e.preventDefault();
         const code = $('#mfaCode').val().trim();
-        console.log(code)
 
         $.ajax({
             type: 'POST',
@@ -63,7 +77,7 @@ $(document).ready(function () {
                         }
                     }, 1500);
                 } else {
-                    showToast(response.message, true);
+                    showToast(response.message, false);
                 }
             },
             error: function () {
