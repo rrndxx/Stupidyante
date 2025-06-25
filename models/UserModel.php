@@ -25,7 +25,7 @@ class User
         try {
             $mail->SMTPDebug = 0;
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = 'smtp.example.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'rendyllcabardo11@gmail.com';
             $mail->Password = $this->mailPassword;
@@ -79,7 +79,7 @@ class User
         try {
             $mail->SMTPDebug = 0;
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';
+            $mail->Host = 'smtp.example.com';
             $mail->SMTPAuth = true;
             $mail->Username = 'rendyllcabardo11@gmail.com';
             $mail->Password = $this->mailPassword;
